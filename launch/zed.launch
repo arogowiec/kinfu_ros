@@ -1,0 +1,131 @@
+<launch>
+  <!-- Runs zed stereo camera on a remote machine -->
+
+  <!-- ===================================================================== -->
+  <!-- CONSTANTS -->
+  <arg name="pi_half"         value="1.5707963267948966"/>
+  <arg name="pi"              value="3.1415926535897932"/>
+  <arg name="optical_rotate"  value="0 0 0 -$(arg pi_half) 0 -$(arg pi_half)"/>
+
+
+  <!-- ===================================================================== -->
+  <!-- SETUP MACHINES -->
+  <arg name="localhost_id"      default="localhost"/>
+
+  <machine name="$(arg localhost_id)" address="127.0.0.1" 
+      env-loader="$(find benchmark_slam)/config/localhost_env_cfg.sh"
+      default="false" timeout="5.0"/>  
+
+  <!-- ===================================================================== -->
+  <!-- GENERAL ARGUMENTS -->
+  <arg name="wrapper_ns"          default=""/>
+  <arg name="use_odom"            default="false"/>
+  <!-- machine id to run nodes on -->
+  <arg name="robot_id"            default="$(arg localhost_id)"/>
+  <arg name="zed_namespace"       default="camera"/>
+  <!-- Frame linked to zed_base_frame. To use in other nodes -->
+
+  <!-- ===================================================================== -->
+  <!-- ZED Definition coordinate frames -->
+  <arg     if="$(arg use_odom)"     name="publish_tf"   default="true"/>
+  <arg unless="$(arg use_odom)"     name="publish_tf"   default="false"/>
+  <arg name="zed_odometry_frame"    default="odom"/>
+  <arg name="zed_base_frame"        default="zed_center"/>
+  <arg name="zed_camera_frame"      default="zed_left_camera"/>
+  <arg name="zed_depth_frame"       default="zed_depth_camera"/>
+  <!-- Publish urdf zed -->
+  <arg name="publish_urdf"          default="true"/>
+
+
+  <!-- ===================================================================== -->
+  <!-- ZED ARGUMENTS -->
+  <arg name="zed_id"                  default="0"/>
+  <!-- Select ZED camera resolution 
+       '0': HD2K, '1': HD1080, '2': HD720, '3': VGA -->
+  <arg name="zed_resolution"          default="2"/>
+  <!-- Select depth map quality 
+       '0': NONE, '1': PERFORMANCE, '2': MEDIUM, '3': QUALITY -->
+  <arg name="zed_quality"             default="3"/>
+  <!-- Select depth sensing mode 
+       '0': STANDARD, '1': FILL -->
+  <arg name="zed_sensing_mode"        default="0"/>
+  <!-- Set ZED camera video framerate -->
+  <arg name="zed_frame_rate"          default="30"/>
+  <!-- Convert 32bit depth in meters to 16bit in millimeters 
+       '0': 32bit float meters, '1': 16bit uchar millimeters-->
+  <arg name="zed_openni_depth_mode"   default="1"/>
+  <!-- The confidence value is mapped between 0 (high confidence threshold, 
+       sparse data) and 100 (low confidence threshold, dense data). 
+       It is used to filter invalid data (the lower the value, the more data
+       will be filtered.-->
+  <arg name="zed_confidence"          default="100"/>
+
+
+  <!-- ===================================================================== -->
+  <!-- RUN ZED WRAPPER -->
+  <group ns="$(arg zed_namespace)">
+
+    <node pkg="zed_wrapper" type="zed_wrapper_node" name="zed_wrapper_node" 
+        output="screen" machine="$(arg robot_id)">
+      
+      <!-- publish odometry frame -->
+      <param name="publish_tf"            value="$(arg publish_tf)" />
+      <!-- Configuration frame camera -->    
+      <param name="odometry_frame"        value="$(arg zed_odometry_frame)" />
+      <param name="base_frame"            value="$(arg zed_base_frame)" />
+      <param name="camera_frame"          value="$(arg zed_camera_frame)" />
+      <param name="depth_frame"           value="$(arg zed_depth_frame)" />
+
+      <!-- ZED parameters -->
+      <param name="zed_id"                value="$(arg zed_id)" />
+
+      <param name="resolution"            value="$(arg zed_resolution)" />
+      <param name="quality"               value="$(arg zed_quality)"/>
+      <param name="sensing_mode"          value="$(arg zed_sensing_mode)"/>
+      <param name="frame_rate"            value="$(arg zed_frame_rate)"/>
+      <param name="odometry_db"           value="" />
+      <param name="openni_depth_mode"     value="$(arg zed_openni_depth_mode)"/>
+      <param name="confidence"            value="$(arg zed_confidence)"/>
+      <param name="depth_stabilization"   value="1" />
+
+      <!-- ROS topic names -->
+      <param name="rgb_topic"             value="rgb/image_rect_color"/>
+      <param name="rgb_raw_topic"         value="rgb/image_raw_color"/>
+      <param name="rgb_cam_info_topic"    value="rgb/camera_info"/>
+
+      <param name="left_topic"            value="left/image_rect_color"/>
+      <param name="left_raw_topic"        value="left/image_raw_color"/>
+      <param name="left_cam_info_topic"   value="left/camera_info"/>
+
+      <param name="right_topic"           value="right/image_rect_color"/>
+      <param name="right_raw_topic"       value="right/image_raw_color"/>
+      <param name="right_cam_info_topic"  value="right/camera_info"/>
+
+      <param name="depth_topic"           value="depth/depth_registered"/>
+      <param name="depth_cam_info_topic"  value="depth/camera_info"/>
+      
+      <param name="point_cloud_topic"     value="point_cloud/cloud_registered"/>
+
+      <param name="odometry_topic"        value="odom"/>
+
+      <remap from="/tf" to="/$(arg wrapper_ns)/tf"/>
+      <remap from="/tf_static" to="/$(arg wrapper_ns)/tf_static"/>
+    </node>
+
+
+    <!-- ===================================================================== -->
+    <!-- ROS URDF description of the ZED -->
+    <group if="$(arg publish_urdf)">
+      <param name="zed_description" textfile="$(find zed_wrapper)/urdf/zed.urdf"/>
+      <node pkg="robot_state_publisher" type="state_publisher" 
+            name="zed_state_publisher" machine="$(arg robot_id)">
+        <remap from="robot_description" to="zed_description"/>
+        <remap from="/tf" to="/$(arg wrapper_ns)/tf"/>
+        <remap from="/tf_static"    to="/$(arg wrapper_ns)/tf_static"/>
+        <remap from="/joint_states" to="/$(arg wrapper_ns)/joint_states"/>
+      </node>
+    </group>  
+  </group>
+
+
+</launch>
