@@ -3,10 +3,16 @@
     <!-- ===================================================================== -->
     <!-- SETUP MACHINES -->
     <arg name="jetson_tx2_id"     default="jetsonTx2"/>
+    <arg name="localhost_id"      default="localhost"/>
 
     <machine name="$(arg jetson_tx2_id)" address="jetsonTx2" 
       env-loader="/home/nvidia/playground/zed/src/kinfu_ros/config/jetson_tx2_env_cfg.sh"
       user="nvidia" default="false" timeout="5.0"/>
+
+    <machine name="$(arg localhost_id)" address="127.0.0.1" 
+      env-loader="$(find kinfu_ros)/config/localhost_env_cfg.sh"
+      default="false" timeout="5.0"/>    
+      <!-- user="ubuntu" default="false" timeout="5.0"/>     -->
 
     <!-- ==================================================================== -->
     <!-- ZED CONFIGURATION -->
@@ -45,7 +51,8 @@
     
 
     <!-- Launch kinfu as a standalone ROS node-->
-    <node name="kinfu" pkg="kinfu_ros" type="kinfu_node" output="screen">
+    <node name="kinfu" pkg="kinfu_ros" type="kinfu_node" output="screen"
+          machine="$(arg jetson_tx2_id)">
         <!-- The rosparams can be saved to a .yaml file. They're inlined here
              for convenience -->
         <rosparam>
