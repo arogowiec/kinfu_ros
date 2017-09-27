@@ -1,8 +1,6 @@
 #ifndef KINFU_TYPES_H_
 #define KINFU_TYPES_H_
-//#include <vector>
-//using namespace std;
-//#include <opencv2/contrib/contrib.hpp>
+
 #include <kfusion/cuda/device_array.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/core/affine.hpp>
