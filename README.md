@@ -8,7 +8,7 @@ The project has been tested with two ROS cameras so far. It seems to work with a
 
 ![](https://raw.githubusercontent.com/personalrobotics/kinfu_ros/master/fusion_structureio.png)
 
-#Running Standalone Kinfu Server#
+## Running Standalone Kinfu Server
 
 An example launch file is shown in `/launch/default.launch`. To launch the `kinfu_ros` server simply use the command
 
@@ -18,7 +18,7 @@ This will spin up a `kinfu_ros` server, that will continuously receive images an
 
 You can also include the `kinfu_ros` server as a header file, and use it in any way you wish. Just include `<kinfu_ros/kinfu_server.h>` in your code. `src/kinfu_node.cpp` shows how to use the `kinfu_ros` server to receive and track depth images.
 
-#Getting the TSDF through a service call#
+## Getting the TSDF through a service call
 
 The `kinfu_ros` server advertises a service that lets you read the raw TSDF data through ros. The `kinfu/get_tsdf` service will return a message that has a giant `uint32` array. The first 16 bits are a half-precision float representing the signed distance field. The second 16 bits are an unsigned weight.
 
