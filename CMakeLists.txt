@@ -45,12 +45,19 @@ message(STATUS "CMAKE MODULE PATH IS ${CMAKE_MODULE_PATH}")
 #include(cmake/Targets.cmake)
 
 ## System dependencies are found with CMake's conventions
-find_package(OpenCV 2.4.9 REQUIRED COMPONENTS core highgui)
+find_package(OpenCV 3 QUIET COMPONENTS core highgui)
+if(NOT OpenCV_FOUND)
+   find_package(OpenCV 2.4.9 QUIET COMPONENTS core highgui)
+   if(NOT OpenCV_FOUND)
+      message(FATAL_ERROR "OpenCV >= 2.4.9 not found.")
+   endif()
+endif()
 message(STATUS "Found OpenCV At ${OpenCV_INCLUDE_DIRS}")
 
 find_package(CUDA REQUIRED)
 if(${CUDA_VERSION_STRING} VERSION_GREATER "4.1")
-        set(CUDA_ARCH_BIN "2.0 2.1(2.0) 3.0 5.0 5.2" CACHE STRING "Specify 'real' GPU architectures to build binaries for, BIN(PTX) format is supported")
+        # "2.0 2.1(2.0) 3.0 5.0 5.2"
+        set(CUDA_ARCH_BIN "6.2" CACHE STRING "Specify 'real' GPU architectures to build binaries for, BIN(PTX) format is supported")
     else()
         set(CUDA_ARCH_BIN "2.0 2.1(2.0)" CACHE STRING "Specify 'real' GPU architectures to build binaries for, BIN(PTX) format is supported")
     endif()
@@ -150,9 +157,7 @@ include_directories(
 )
 
 set(HAVE_CUDA 1)
-#list(APPEND CUDA_NVCC_FLAGS "-arch;compute_20")
-list(APPEND CUDA_NVCC_FLAGS "-gencode;arch=compute_20,code=sm_20;-gencode;arch=compute_20,code=sm_21;-gencode;arch=compute_30,code=sm_30;-gencode;arch=compute_35,code=sm_35")
-  list(APPEND CUDA_NVCC_FLAGS "-Xcompiler;-fPIC;")
+list(APPEND CUDA_NVCC_FLAGS "-Xcompiler;-fPIC;")
 
 include_directories(${PROJECT_SOURCE_DIR}/include/kinfu_ros)
 include_directories(${PROJECT_SOURCE_DIR}/src)
