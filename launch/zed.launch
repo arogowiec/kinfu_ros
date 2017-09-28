@@ -12,10 +12,6 @@
   <!-- SETUP MACHINES -->
   <arg name="localhost_id"      default="localhost"/>
 
-  <machine name="$(arg localhost_id)" address="127.0.0.1" 
-      env-loader="$(find benchmark_slam)/config/localhost_env_cfg.sh"
-      default="false" timeout="5.0"/>  
-
   <!-- ===================================================================== -->
   <!-- GENERAL ARGUMENTS -->
   <arg name="wrapper_ns"          default=""/>
