@@ -2,6 +2,8 @@
 #define KINFU_TYPES_H_
 
 #include <iosfwd>
+#include <string>
+
 #include <kfusion/cuda/device_array.hpp>
 #include <opencv2/core/affine.hpp>
 #include <opencv2/core/core.hpp>
@@ -101,5 +103,29 @@ struct KF_EXPORTS SampledScopeTime
   double& time_ms_;
   double start;
 };
+
+struct KF_EXPORTS SampledTime
+{
+ public:
+  
+  const char* name;
+  SampledTime();
+  SampledTime(const char* name, unsigned int avg_each = 30);
+  ~SampledTime();
+
+  void tik();
+  void tok();
+
+ private:
+  double getTime();
+  SampledTime(const SampledTime&);
+  SampledTime& operator=(const SampledTime&);
+
+  unsigned int avg_each_;
+  unsigned int counter_;
+  double time_ms_;
+  double start_;
+};
+
 }
 #endif

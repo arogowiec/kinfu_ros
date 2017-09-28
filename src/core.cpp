@@ -256,7 +256,11 @@ void kf::cuda::printShortCudaDeviceInfo(int device)
   fflush(stdout);
 }
 
-kf::SampledScopeTime::SampledScopeTime(double &time_ms) : time_ms_(time_ms)
+// ------------------------------------------------------------------------
+//                  SampledScopeTime
+// ------------------------------------------------------------------------
+
+kf::SampledScopeTime::SampledScopeTime(double& time_ms) : time_ms_(time_ms)
 {
   start = (double) cv::getTickCount();
 }
@@ -266,8 +270,8 @@ kf::SampledScopeTime::~SampledScopeTime()
   time_ms_ += getTime();
   if (i_ % EACH == 0 && i_)
   {
-    std::cout << "Average frame time = " << time_ms_ / EACH << "ms ( "
-              << 1000.f * EACH / time_ms_ << "fps )" << std::endl;
+    std::cout << "Average frame time = " << time_ms_ / EACH 
+              << "ms ( " << 1000.f * EACH / time_ms_ << "fps )" << std::endl;
     time_ms_ = 0.0;
   }
   ++i_;
@@ -279,6 +283,10 @@ double kf::SampledScopeTime::getTime()
          cv::getTickFrequency();
 }
 
+// ------------------------------------------------------------------------
+//                  ScopeTime
+// ------------------------------------------------------------------------
+
 kf::ScopeTime::ScopeTime(const char *name_) : name(name_)
 {
   start = (double) cv::getTickCount();
@@ -289,3 +297,61 @@ kf::ScopeTime::~ScopeTime()
       ((double) cv::getTickCount() - start) * 1000.0 / cv::getTickFrequency();
   std::cout << "Time(" << name << ") = " << time_ms << "ms" << std::endl;
 }
+
+// ------------------------------------------------------------------------
+//                  SampledTime
+// ------------------------------------------------------------------------
+
+#include <ros/console.h>
+
+kf::SampledTime::SampledTime()
+  :
+  name("unnamed"),
+  avg_each_(30),
+  counter_(0),
+  time_ms_(0.0),
+  start_(0.0)
+{
+}
+
+kf::SampledTime::SampledTime(
+    const char* name,
+    unsigned int avg_each)
+  : 
+    name(name),
+    avg_each_(avg_each),
+    counter_(0),
+    time_ms_(0.0),
+    start_(0.0)
+{
+}
+
+kf::SampledTime::~SampledTime()
+{
+}
+
+void kf::SampledTime::tik()
+{
+  start_ = (double) cv::getTickCount();
+}
+
+void kf::SampledTime::tok()
+{
+  time_ms_ += getTime();
+  if (counter_ % avg_each_ == 0 && counter_)
+  {
+    ROS_INFO_STREAM("[" << name << "] Average frame time = " 
+              << time_ms_ / avg_each_ << "ms ( " 
+              << 1000.f * avg_each_ / time_ms_ << "fps )" << std::endl);
+    time_ms_ = 0.0;
+  }
+  ++counter_;
+}
+
+double kf::SampledTime::getTime()
+{
+  return ((double) cv::getTickCount() - start_) * 1000.0 /
+         cv::getTickFrequency();
+}
+
+

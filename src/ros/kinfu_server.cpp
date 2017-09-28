@@ -6,12 +6,15 @@
  */
 
 #include <ros/kinfu_server.h>
+#include <ros/console.h>
 
 namespace kfusion
 {
 KinFuServer::KinFuServer(RosRGBDCamera* camera, const std::string& fixedFrame,
                          const std::string& camFrame)
-  : should_exit_(false),
+  : grab_timer_("CameraGrab"),
+    kinfu_timer_("KinFu"),
+    should_exit_(false),
     camera_(camera),
     baseFrame_(fixedFrame),
     cameraFrame_(camFrame)
@@ -38,33 +41,29 @@ void KinFuServer::PublishRaycastImage()
 
 void KinFuServer::Update()
 {
+  grab_timer_.tik();
   bool has_frame = camera_->Grab(lastDepth_, lastColor_);
-
+  grab_timer_.tok();
   if (!has_frame)
   {
     ros::spinOnce();
     return;
   }
 
+  kinfu_timer_.tik();
   bool has_image = KinFu(lastDepth_, lastColor_);
+  kinfu_timer_.tok();
 
   if (has_image)
   {
     PublishRaycastImage();
   }
-
   PublishTransform();
 }
 
 bool KinFuServer::ExecuteBlocking()
 {
-  double time_ms = 0;
-  bool has_image = false;
-
   Initialize();
-
-  kfusion::KinFu& kinfu = *kinfu_;
-
   ROS_INFO("Starting tracking...\n");
   ros::Rate trackHz(30.0f);
   for (int i = 0; !should_exit_ && ros::ok(); ++i)
@@ -159,6 +158,14 @@ bool KinFuServer::PublishTransform()
                                currPose.translation().val[1],
                                currPose.translation().val[2]));
   cv::Affine3f::Mat3 rot = currPose.rotation();
+  cv::Vec3f rvec = currPose.rvec(); 
+  
+  ROS_INFO_STREAM("x: " << currPose.translation().val[0] << 
+                  ", y: " << currPose.translation().val[1] << 
+                  ", z: " << currPose.translation().val[2] << std::endl); 
+  ROS_INFO_STREAM("rx: " << rvec[0] << ", ry: " << rvec[1] << ", rz: " 
+                  << rvec[2] << std::endl);
+
   tf::Matrix3x3 tfRot(rot.val[0], rot.val[1], rot.val[2], rot.val[3],
                       rot.val[4], rot.val[5], rot.val[6], rot.val[7],
                       rot.val[8]);

@@ -8,17 +8,21 @@
 #ifndef KINFUSERVER_H_
 #define KINFUSERVER_H_
 
+#include <iostream>
+
+#include <sensor_msgs/Image.h>
+#include <tf/tf.h>
+#include <tf/transform_broadcaster.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <ros/ros_rgbd_camera.hpp>
+
 #include <kinfu_ros/GetTSDF.h>
 #include <kinfu_ros/GetTSDFRequest.h>
 #include <kinfu_ros/GetTSDFResponse.h>
 #include <kinfu_ros/TSDF.h>
-#include <sensor_msgs/Image.h>
-#include <tf/tf.h>
-#include <tf/transform_broadcaster.h>
-#include <iostream>
 #include <kfusion/kinfu.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <ros/ros_rgbd_camera.hpp>
+#include <kfusion/types.hpp>
+
 namespace kfusion
 {
 class KinFuServer
@@ -83,6 +87,8 @@ class KinFuServer
   bool GetTSDF(kinfu_ros::GetTSDFRequest& req, kinfu_ros::GetTSDFResponse& res);
 
  protected:
+  SampledTime grab_timer_;
+  SampledTime kinfu_timer_;
   bool should_exit_;
   KinFu::Ptr kinfu_;
   RosRGBDCamera* camera_;
