@@ -251,8 +251,7 @@ using kfusion::cuda::DeviceMemory2D;
 }
 }
 
-/////////////////////  Inline implementations of DeviceMemory
-///////////////////////////////////////////////
+/////////////////////  Inline implementations of DeviceMemory /////////////////
 
 template <class T>
 inline T* kfusion::cuda::DeviceMemory::ptr()
@@ -274,8 +273,7 @@ inline kfusion::cuda::DeviceMemory::operator kfusion::cuda::PtrSz<U>() const
   return result;
 }
 
-/////////////////////  Inline implementations of DeviceMemory2D
-///////////////////////////////////////////////
+/////////////////////  Inline implementations of DeviceMemory2D ///////////////
 
 template <class T>
 T* kfusion::cuda::DeviceMemory2D::ptr(int y_arg)

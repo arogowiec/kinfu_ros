@@ -51,7 +51,9 @@ static inline _Tp CV_XADD(_Tp* addr, _Tp delta)
 
 #endif
 
+
 ////////////////////////    DeviceArray    /////////////////////////////
+
 
 kfusion::cuda::DeviceMemory::DeviceMemory()
   : data_(0), sizeBytes_(0), refcount_(0)
@@ -160,7 +162,11 @@ void kfusion::cuda::DeviceMemory::swap(DeviceMemory& other_arg)
 
 bool kfusion::cuda::DeviceMemory::empty() const { return !data_; }
 size_t kfusion::cuda::DeviceMemory::sizeBytes() const { return sizeBytes_; }
+
+
 ////////////////////////    DeviceArray2D    /////////////////////////////
+
+
 
 kfusion::cuda::DeviceMemory2D::DeviceMemory2D()
   : data_(0), step_(0), colsBytes_(0), rows_(0), refcount_(0)

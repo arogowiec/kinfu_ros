@@ -14,6 +14,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/Image.h>
+
 #include <kfusion/types.hpp>
 
 namespace kfusion

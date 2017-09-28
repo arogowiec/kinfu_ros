@@ -254,8 +254,7 @@ using kfusion::cuda::DeviceArray2D;
 }
 }
 
-/////////////////////  Inline implementations of DeviceArray
-///////////////////////////////////////////////
+/////////////////////  Inline implementations of DeviceArray //////////////////
 
 template <class T>
 inline kfusion::cuda::DeviceArray<T>::DeviceArray()
@@ -361,8 +360,7 @@ inline void kfusion::cuda::DeviceArray<T>::download(
     download(&data[0]);
 }
 
-/////////////////////  Inline implementations of DeviceArray2D
-////////
+/////////////////////  Inline implementations of DeviceArray2D ////////
 
 template <class T>
 inline kfusion::cuda::DeviceArray2D<T>::DeviceArray2D()
