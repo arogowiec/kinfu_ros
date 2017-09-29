@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(kinfu_ros)
 
+## Compile as C++11, supported in ROS Kinetic and newer
+add_compile_options(-std=c++11)
+
 #compute flags macros
 MACRO(CUDA_COMPUTE_TARGET_FLAGS arch_bin arch_ptx cuda_nvcc_target_flags)
     string(REGEX REPLACE "\\." "" ARCH_BIN_WITHOUT_DOTS "${${arch_bin}}")
@@ -157,6 +160,7 @@ include_directories(
 )
 
 set(HAVE_CUDA 1)
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} "--ftz=true;--prec-div=false;--prec-sqrt=false")
 list(APPEND CUDA_NVCC_FLAGS "-Xcompiler;-fPIC;")
 
 include_directories(${PROJECT_SOURCE_DIR}/include/kinfu_ros)
