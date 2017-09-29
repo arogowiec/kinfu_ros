@@ -342,7 +342,7 @@ void kf::SampledTime::tok()
   {
     ROS_INFO_STREAM("[" << name << "] Average frame time = " 
               << time_ms_ / avg_each_ << "ms ( " 
-              << 1000.f * avg_each_ / time_ms_ << "fps )" << std::endl);
+              << 1000.f * avg_each_ / time_ms_ << "fps )");
     time_ms_ = 0.0;
   }
   ++counter_;

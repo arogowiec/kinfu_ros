@@ -5,6 +5,8 @@
  *      Author: mklingen
  */
 
+#include <iomanip>
+
 #include <ros/kinfu_server.h>
 #include <ros/console.h>
 
@@ -32,9 +34,11 @@ void KinFuServer::PublishRaycastImage()
 
   viewHost_.create(viewDevice_.rows(), viewDevice_.cols(), CV_8UC4);
   viewDevice_.download(viewHost_.ptr<void>(), viewHost_.step);
+
   std_msgs::Header header;
   header.stamp    = ros::Time::now();
   header.frame_id = cameraFrame_;
+
   cv_bridge::CvImage image(header, std::string("rgba8"), viewHost_);
   raycastImgPublisher_.publish(image.toImageMsg());
 }
@@ -160,11 +164,15 @@ bool KinFuServer::PublishTransform()
   cv::Affine3f::Mat3 rot = currPose.rotation();
   cv::Vec3f rvec = currPose.rvec(); 
   
-  ROS_INFO_STREAM("x: " << currPose.translation().val[0] << 
+  ROS_INFO_STREAM(std::fixed << std::right << std::setw(7) <<
+                  std::setprecision(4) << 
+                  "x: " << currPose.translation().val[0] << 
                   ", y: " << currPose.translation().val[1] << 
-                  ", z: " << currPose.translation().val[2] << std::endl); 
-  ROS_INFO_STREAM("rx: " << rvec[0] << ", ry: " << rvec[1] << ", rz: " 
-                  << rvec[2] << std::endl);
+                  ", z: " << currPose.translation().val[2]); 
+  ROS_INFO_STREAM(std::fixed << std::right << std::setw(7) <<
+                  std::setprecision(4) << 
+                  "rx: " << rvec[0] << ", ry: " << rvec[1] << ", rz: " 
+                  << rvec[2]);
 
   tf::Matrix3x3 tfRot(rot.val[0], rot.val[1], rot.val[2], rot.val[3],
                       rot.val[4], rot.val[5], rot.val[6], rot.val[7],
@@ -210,3 +218,4 @@ bool KinFuServer::GetTSDF(kinfu_ros::GetTSDFRequest& req,
 }
 
 } /* namespace kfusion */
+

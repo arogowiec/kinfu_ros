@@ -78,6 +78,7 @@ class KinFuServer
   inline void SetKinfu(KinFu::Ptr value) { kinfu_ = value; }
   inline const RosRGBDCamera* GetCamera() { return camera_; }
   inline void SetCamera(RosRGBDCamera* value) { camera_ = value; }
+
   inline const cv::Mat& GetViewHost() { return viewHost_; }
   inline const cuda::Image& GetViewDevice() { return viewDevice_; }
   inline const cuda::Depth& GetDepthDevice() { return depthDevice_; }
@@ -95,9 +96,11 @@ class KinFuServer
   cv::Mat viewHost_;
   cuda::Image viewDevice_;
   cuda::Depth depthDevice_;
+
   ros::Publisher raycastImgPublisher_;
   std::string baseFrame_;
   std::string cameraFrame_;
+
   tf::TransformBroadcaster tfBroadcaster_;
   cv::Mat lastDepth_;
   cv::Mat lastColor_;
