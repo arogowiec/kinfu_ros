@@ -56,7 +56,7 @@
         <!-- The rosparams can be saved to a .yaml file. They're inlined here
              for convenience -->
         <rosparam>
-            kinfu_odom: "kinfu/odom"
+            kinfu_odom: "odom"
             # The node reports the transform between the fixed frame and
             # a given camera frame.
             fixed_frame: "/map"

@@ -32,12 +32,12 @@ int main(int argc, char* argv[])
   
   std::string fixedFrame  = "/map";
   std::string cameraFrame = "/camera_depth_optical_frame";
-  std::string kinfuOdomTopic = "kinfu/odom";
+  std::string kinfuOdomTopic = "odom";
 
   node.param<std::string>("fixed_frame", fixedFrame, "/map");
   node.param<std::string>("camera_frame", cameraFrame,
                           "/camera_depth_optical_frame");
-  node.param<std::string>("kinfu_odom", kinfuOdomTopic, "kinfu/odom");
+  node.param<std::string>("kinfu_odom", kinfuOdomTopic, "odom");
   KinFuServer app(&camera, fixedFrame, cameraFrame, kinfuOdomTopic);
   app.ExecuteBlocking();
 
