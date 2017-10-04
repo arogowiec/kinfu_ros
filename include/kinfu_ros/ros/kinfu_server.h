@@ -29,7 +29,7 @@ class KinFuServer
 {
  public:
   KinFuServer(RosRGBDCamera* camera, const std::string& fixedFrame,
-              const std::string& camFrame);
+              const std::string& camFrame, const std::string& kinfuOdomTopic);
 
   template <typename T>
   void LoadParam(T& value, const std::string& name)
@@ -66,8 +66,14 @@ class KinFuServer
   bool ConnectCamera();
   // Creates the KinFu server from the ROS parameters
   bool LoadParams();
-  // Publishes the current camera transform.
-  bool PublishTransform();
+  // Publishes the current camera transform as well as odometry message
+  bool PublishTransformOdometry();
+  /* \brief Publish the pose of the camera with a ros Publisher
+   * \param t : the ros::Time to stamp message
+   */
+  void publishOdom(cv::Affine3f::Vec3 const & translation,
+                   tf::Quaternion const & rotation,
+                   ros::Time t);
   // Does a single KinFu step given a depth and (optional) color image.
   bool KinFu(const cv::Mat& depth, const cv::Mat& color);
 
@@ -98,6 +104,7 @@ class KinFuServer
   cuda::Depth depthDevice_;
 
   ros::Publisher raycastImgPublisher_;
+  ros::Publisher odometryPublisher_;
   std::string baseFrame_;
   std::string cameraFrame_;
 

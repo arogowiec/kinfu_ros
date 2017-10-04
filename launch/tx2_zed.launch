@@ -36,7 +36,7 @@
       <arg name="use_odom"              value="$(arg use_zed_odometry)"/>
       <arg name="zed_namespace"         value="$(arg zed_namespace)"/>
       <arg name="zed_odometry_frame"    value="$(arg zed_odometry_frame)"/>
-      <arg name="zed_quality"           value="1"/>
+      <arg name="zed_quality"           value="3"/>
       <arg name="wrapper_ns"            value=""/>
     </include>
 
@@ -56,6 +56,7 @@
         <!-- The rosparams can be saved to a .yaml file. They're inlined here
              for convenience -->
         <rosparam>
+            kinfu_odom: "kinfu/odom"
             # The node reports the transform between the fixed frame and
             # a given camera frame.
             fixed_frame: "/map"

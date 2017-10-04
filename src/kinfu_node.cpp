@@ -29,12 +29,16 @@ int main(int argc, char* argv[])
   RosRGBDCamera camera(node);
   camera.SubscribeDepth("/camera/depth/image_raw");
   camera.SubscribeRGB("/camera/rgb/image_rect_color");
+  
   std::string fixedFrame  = "/map";
   std::string cameraFrame = "/camera_depth_optical_frame";
-  node.param<std::string>("fixed_Frame", fixedFrame, "/map");
+  std::string kinfuOdomTopic = "kinfu/odom";
+
+  node.param<std::string>("fixed_frame", fixedFrame, "/map");
   node.param<std::string>("camera_frame", cameraFrame,
                           "/camera_depth_optical_frame");
-  KinFuServer app(&camera, fixedFrame, cameraFrame);
+  node.param<std::string>("kinfu_odom", kinfuOdomTopic, "kinfu/odom");
+  KinFuServer app(&camera, fixedFrame, cameraFrame, kinfuOdomTopic);
   app.ExecuteBlocking();
 
   return 0;

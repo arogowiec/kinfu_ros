@@ -76,6 +76,9 @@ find_package(catkin REQUIRED COMPONENTS
   rosconsole
   roscpp
   sensor_msgs
+  nav_msgs
+  geometry_msgs
+  std_msgs
   tf
 )
 
@@ -145,7 +148,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES kinfu_ros
-  CATKIN_DEPENDS cv_bridge image_transport rosconsole roscpp sensor_msgs
+  CATKIN_DEPENDS cv_bridge image_transport rosconsole roscpp sensor_msgs nav_msgs geometry_msgs std_msgs
 )
 
 ###########

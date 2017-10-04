@@ -7,13 +7,16 @@
 
 #include <iomanip>
 
+#include <nav_msgs/Odometry.h>
+
 #include <ros/kinfu_server.h>
 #include <ros/console.h>
 
 namespace kfusion
 {
 KinFuServer::KinFuServer(RosRGBDCamera* camera, const std::string& fixedFrame,
-                         const std::string& camFrame)
+                         const std::string& camFrame,
+                         const std::string& kinfuOdomTopic)
   : grab_timer_("CameraGrab"),
     kinfu_timer_("KinFu"),
     should_exit_(false),
@@ -23,6 +26,8 @@ KinFuServer::KinFuServer(RosRGBDCamera* camera, const std::string& fixedFrame,
 {
   raycastImgPublisher_ =
       camera->nodeHandle.advertise<sensor_msgs::Image>("raycast_image", 10);
+  odometryPublisher_ = 
+      camera->nodeHandle.advertise<nav_msgs::Odometry>(kinfuOdomTopic, 10);
   get_tsdf_server_ = camera->nodeHandle.advertiseService(
       "get_tsdf", &KinFuServer::GetTSDF, this);
 }
@@ -62,7 +67,7 @@ void KinFuServer::Update()
   {
     PublishRaycastImage();
   }
-  PublishTransform();
+  PublishTransformOdometry();
 }
 
 bool KinFuServer::ExecuteBlocking()
@@ -151,24 +156,24 @@ bool KinFuServer::LoadParams()
   return true;
 }
 
-bool KinFuServer::PublishTransform()
+bool KinFuServer::PublishTransformOdometry()
 {
   tf::StampedTransform currTf;
   currTf.child_frame_id_ = cameraFrame_;
   currTf.frame_id_       = baseFrame_;
   currTf.stamp_          = ros::Time::now();
   cv::Affine3f currPose  = kinfu_->getCameraPose();
-  currTf.setOrigin(tf::Vector3(currPose.translation().val[0],
-                               currPose.translation().val[1],
-                               currPose.translation().val[2]));
+  cv::Affine3f::Vec3 curTransl = currPose.translation();
+  currTf.setOrigin(tf::Vector3(curTransl.val[0], curTransl.val[1], 
+                               curTransl.val[2]));
   cv::Affine3f::Mat3 rot = currPose.rotation();
   cv::Vec3f rvec = currPose.rvec(); 
   
   ROS_INFO_STREAM(std::fixed << std::right << std::setw(7) <<
                   std::setprecision(4) << 
-                  "x: " << currPose.translation().val[0] << 
-                  ", y: " << currPose.translation().val[1] << 
-                  ", z: " << currPose.translation().val[2]); 
+                  "x: " << curTransl.val[0] << 
+                  ", y: " << curTransl.val[1] << 
+                  ", z: " << curTransl.val[2]); 
   ROS_INFO_STREAM(std::fixed << std::right << std::setw(7) <<
                   std::setprecision(4) << 
                   "rx: " << rvec[0] << ", ry: " << rvec[1] << ", rz: " 
@@ -181,7 +186,34 @@ bool KinFuServer::PublishTransform()
   tfRot.getRotation(tfQuat);
   currTf.setRotation(tfQuat);
   tfBroadcaster_.sendTransform(currTf);
+
+  publishOdom(curTransl, tfQuat, currTf.stamp_);
   return true;
+}
+
+/* \brief Publish the pose of the camera with a ros Publisher
+ * \param base_transform : Transformation representing the camera pose from base frame
+ * \param t : the ros::Time to stamp the image
+ */
+void KinFuServer::publishOdom(
+    cv::Affine3f::Vec3 const & translation,
+    tf::Quaternion const & rotation,
+    ros::Time t)
+{
+    nav_msgs::Odometry odom;
+    odom.header.stamp = t;
+    odom.header.frame_id = cameraFrame_; // odom_frame
+    odom.child_frame_id = baseFrame_;  // base_frame
+    // Add all value in odometry message
+    odom.pose.pose.position.x = translation.val[0];
+    odom.pose.pose.position.y = translation.val[1];
+    odom.pose.pose.position.z = translation.val[2];
+    odom.pose.pose.orientation.x = rotation.x();
+    odom.pose.pose.orientation.y = rotation.y();
+    odom.pose.pose.orientation.z = rotation.z();
+    odom.pose.pose.orientation.w = rotation.w();
+    // Publish odometry message
+    odometryPublisher_.publish(odom);
 }
 
 bool KinFuServer::GetTSDF(kinfu_ros::GetTSDFRequest& req,
