@@ -22,7 +22,7 @@ namespace kfusion
 class RosRGBDCamera
 {
  public:
-  RosRGBDCamera(const ros::NodeHandle& handle);
+  RosRGBDCamera(const ros::NodeHandle& nh, const ros::NodeHandle& pnh);
   virtual ~RosRGBDCamera();
 
   void SubscribeDepth(const std::string& topic);
@@ -39,7 +39,9 @@ class RosRGBDCamera
 
   inline int GetDepthWidth() { return lastDepthInfo->width; }
   inline int GetDepthHeight() { return lastDepthInfo->height; }
+  
   ros::NodeHandle nodeHandle;
+  ros::NodeHandle prvNodeHandle;
 
   image_transport::ImageTransport transport;
   image_transport::CameraSubscriber depthSubscriber;

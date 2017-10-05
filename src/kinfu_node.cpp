@@ -25,19 +25,20 @@ int main(int argc, char* argv[])
 
   ros::init(argc, argv, "kinfu_ros");
 
-  ros::NodeHandle node("~");
-  RosRGBDCamera camera(node);
-  camera.SubscribeDepth("/camera/depth/image_raw");
-  camera.SubscribeRGB("/camera/rgb/image_rect_color");
+  ros::NodeHandle pnh("~");
+  ros::NodeHandle nh("");
+  RosRGBDCamera camera(nh, pnh);
+  camera.SubscribeDepth("camera/depth/image_raw");
+  camera.SubscribeRGB("camera/rgb/image_rect_color");
   
-  std::string fixedFrame  = "/map";
-  std::string cameraFrame = "/camera_depth_optical_frame";
+  std::string fixedFrame  = "map";
+  std::string cameraFrame = "camera_depth_optical_frame";
   std::string kinfuOdomTopic = "odom";
 
-  node.param<std::string>("fixed_frame", fixedFrame, "/map");
-  node.param<std::string>("camera_frame", cameraFrame,
-                          "/camera_depth_optical_frame");
-  node.param<std::string>("kinfu_odom", kinfuOdomTopic, "odom");
+  pnh.param<std::string>("fixed_frame", fixedFrame, "map");
+  pnh.param<std::string>("camera_frame", cameraFrame,
+                          "camera_depth_optical_frame");
+  pnh.param<std::string>("kinfu_odom", kinfuOdomTopic, "odom");
   KinFuServer app(&camera, fixedFrame, cameraFrame, kinfuOdomTopic);
   app.ExecuteBlocking();
 

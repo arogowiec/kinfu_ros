@@ -34,14 +34,14 @@ class KinFuServer
   template <typename T>
   void LoadParam(T& value, const std::string& name)
   {
-    T newValue = camera_->nodeHandle.param<T>(name, value);
+    T newValue = camera_->prvNodeHandle.param<T>(name, value);
     value      = newValue;
   }
 
   inline void LoadParam(float& value, const std::string& name)
   {
     double curr = value;
-    curr        = camera_->nodeHandle.param<double>(name, curr);
+    curr        = camera_->prvNodeHandle.param<double>(name, curr);
     value       = static_cast<float>(curr);
     std::cout << name << ": " << value << std::endl;
   }
